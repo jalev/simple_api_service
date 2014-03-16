@@ -108,6 +108,21 @@ get '/retrieve' do
   # Return error if key is provided but does not exist in our registered
   # applications database
   
+  opts = JSON.parse(request.body.read) 
+  halt(404, 
+        {
+          "return_code" => 404, 
+          "reason" => "required value not found"
+        }.to_json
+      ) if !valid_request?(opts,['api_key'])
+
+  key = Application.get(opts["api_key"])
+  halt(404, {"return_code" => 404, "reason" => "key not found"}.to_json) if key.nil?
+
+  data = ApplicationData.all(:api_key => opts["api_key"], :data_key => opts["data_key"])
+
+  { "http_code" => 200, "data" => Array(data)}.to_json
+ 
 end
 
 private
