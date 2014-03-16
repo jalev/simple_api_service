@@ -96,11 +96,30 @@ end
 delete '/store' do 
   # For deleting a thing
 
-
   # Return error if no key provided
 
   # Return error if key is provided but does not exist in our registered
   # applications database
+
+  opts = JSON.parse(request.body.read) 
+  halt(404, 
+        {
+          "return_code" => 404, 
+          "reason" => "required value not found"
+        }.to_json
+      ) if !valid_request?(opts,['api_key', 'data_key'])
+
+  key = Application.get(opts["api_key"])
+  halt(404, {"return_code" => 404, "reason" => "key not found"}.to_json) if key.nil?
+
+  if ApplicationData.first(:api_key => opts["api_key"], :data_key => opts["data_key"]).nil?
+    halt(404, { "http_code" => 404, "reason" => "record not found" }.to_json)
+  end
+
+  data = ApplicationData.first(:api_key => opts["api_key"], :data_key => opts["data_key"])
+  data.destroy
+
+  { "http_code" => 200, "reason" => "delete success"}.to_json
 
 
 end
