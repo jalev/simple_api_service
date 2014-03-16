@@ -53,6 +53,10 @@ post '/store' do
   key = Application.get(opts["api_key"])
   halt(404, {"return_code" => 404, "reason" => "key not found"}.to_json) if key.nil?
 
+  if !ApplicationData.first(:api_key => opts["api_key"], :data_key => opts["data_key"]).nil?
+    halt(403, {"return_code" => 403, "reason" => "Record already exists"})
+  end
+
   data = ApplicationData.create(:api_key => opts["api_key"], :data_key => opts["data_key"], :data_value => opts["data_value"])
   data.save
 
@@ -78,6 +82,10 @@ put '/store' do
 
   key = Application.get(opts["api_key"])
   halt(404, {"return_code" => 404, "reason" => "key not found"}.to_json) if key.nil?
+
+  if ApplicationData.first(:api_key => opts["api_key"], :data_key => opts["data_key"]).nil?
+    halt(404, { "http_code" => 404, "reason" => "record not found" }.to_json)
+  end
 
   data = ApplicationData.update(:api_key => opts["api_key"], :data_key => opts["data_key"], :data_value => opts['data_value'])
 
