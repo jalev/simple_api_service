@@ -79,12 +79,9 @@ put '/store' do
   key = Application.get(opts["api_key"])
   halt(404, {"return_code" => 404, "reason" => "key not found"}.to_json) if key.nil?
 
-  data = ApplicationData.all(:api_key => opts["api_key"], :data_key => opts["data_key"])
-  #data.update(:api_key => opts["api_key"], :data_key => opts["data_key"], :data_value => opts["data_value"])
-  #data.save
+  data = ApplicationData.update(:api_key => opts["api_key"], :data_key => opts["data_key"], :data_value => opts['data_value'])
 
-  data.to_json
-  #{ "http_code" => 200}.to_json
+  { "http_code" => 200, "reason" => "update success"}.to_json
  
 end
 
